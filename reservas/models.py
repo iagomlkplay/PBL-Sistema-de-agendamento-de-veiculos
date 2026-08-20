@@ -49,7 +49,7 @@ class Reserva(models.Model):
     destino = models.CharField(max_length=200)
     num_passageiros = models.PositiveIntegerField()
     motivo = models.TextField()
-    protocolo = models.CharField(max_length=20, unique=True, blank=True)  # será preenchido no save
+    protocolo = models.CharField(max_length=20, unique=True, blank=True)
     STATUS_CHOICES = (
         ('confirmada', 'Confirmada'),
         ('cancelada', 'Cancelada'),
@@ -62,7 +62,7 @@ class Reserva(models.Model):
         return f"Reserva {self.protocolo} - {self.colaborador.nome}"
 
     def clean(self):
-        # 1. Verificar se horário está dentro do comercial (8h-17h)
+        # 1. Verificar horário comercial (8h-17h)
         if self.data_inicio.hour < 8 or self.data_inicio.hour >= 17:
             raise ValidationError("O horário de início deve ser entre 8:00 e 17:00.")
         if self.data_fim.hour < 8 or self.data_fim.hour > 17:
@@ -70,39 +70,38 @@ class Reserva(models.Model):
         if self.data_inicio >= self.data_fim:
             raise ValidationError("A data/hora de início deve ser anterior à data/hora de fim.")
 
-        # 2. Verificar se o colaborador não excedeu 10 reservas na semana (últimos 7 dias)
+        # 2. Limite de 10 reservas por semana (últimos 7 dias)
         uma_semana_atras = timezone.now() - timedelta(days=7)
         reservas_semana = Reserva.objects.filter(
             colaborador=self.colaborador,
             data_criacao__gte=uma_semana_atras
-        ).exclude(pk=self.pk)  # exclui a própria reserva se já estiver salva
+        ).exclude(pk=self.pk)
         if reservas_semana.count() >= 10:
             raise ValidationError("Este colaborador já atingiu o limite de 10 reservas na semana.")
 
-        # 3. Verificar disponibilidade do veículo (com buffer de 1h após o fim)
-        buffer_inicio = self.data_inicio
-        buffer_fim = self.data_fim + timedelta(hours=1)
+        # 3. Verificar disponibilidade do veículo com buffer de 1h
         conflitos_veiculo = Reserva.objects.filter(
             veiculo=self.veiculo,
             status='confirmada'
         ).exclude(pk=self.pk).filter(
-            models.Q(data_inicio__lt=buffer_fim, data_fim__gt=buffer_inicio)
+            models.Q(data_fim__gt=self.data_inicio - timedelta(hours=1)) &
+            models.Q(data_inicio__lt=self.data_fim)
         )
         if conflitos_veiculo.exists():
             raise ValidationError("Veículo não disponível no período solicitado (inclui buffer de 1h).")
 
-        # 4. Verificar disponibilidade do motorista (mesma lógica de buffer)
+        # 4. Verificar disponibilidade do motorista com buffer de 1h
         conflitos_motorista = Reserva.objects.filter(
             motorista=self.motorista,
             status='confirmada'
         ).exclude(pk=self.pk).filter(
-            models.Q(data_inicio__lt=buffer_fim, data_fim__gt=buffer_inicio)
+            models.Q(data_fim__gt=self.data_inicio - timedelta(hours=1)) &
+            models.Q(data_inicio__lt=self.data_fim)
         )
         if conflitos_motorista.exists():
-            raise ValidationError("Motorista não disponível no período solicitado.")
+            raise ValidationError("Motorista não disponível no período solicitado (inclui buffer de 1h).")
 
     def save(self, *args, **kwargs):
-        # Gera protocolo se ainda não tiver
         if not self.protocolo:
             self.protocolo = self.gerar_protocolo()
         # Chama a validação completa
@@ -112,7 +111,6 @@ class Reserva(models.Model):
     def gerar_protocolo(self):
         ano = timezone.now().year
         # Conta quantas reservas já existem no ano
-        prefixo = f"{ano}"
         reservas_ano = Reserva.objects.filter(protocolo__endswith=f"/{ano}")
         ultimo_numero = 0
         for r in reservas_ano:
