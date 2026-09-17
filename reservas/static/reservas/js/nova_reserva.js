@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Monta o objeto com os dados
         const dados = {
-            colaborador_id: parseInt(document.getElementById('colaborador').value, 10),
             origem: document.getElementById('origem').value.trim(),
             destino: document.getElementById('destino').value.trim(),
             num_passageiros: parseInt(document.getElementById('num_passageiros').value, 10),
