@@ -120,7 +120,21 @@ def criar_reserva(request):
 
 @login_required
 def listar_reservas(request):
-    reservas = Reserva.objects.filter(status='confirmada').order_by('data_inicio')
+    # Se for staff (admin/COSEG), vê todas. Se não, vê apenas as próprias.
+    if request.user.is_staff:
+        reservas = Reserva.objects.filter(status='confirmada').order_by('data_inicio')
+    else:
+        # Filtra pelo colaborador vinculado ao usuário logado
+        try:
+            colaborador = request.user.colaborador
+            reservas = Reserva.objects.filter(
+                status='confirmada',
+                colaborador=colaborador
+            ).order_by('data_inicio')
+        except Colaborador.DoesNotExist:
+            # Usuário sem colaborador vinculado → lista vazia
+            reservas = Reserva.objects.none()
+
     data = []
     for r in reservas:
         data.append({
@@ -145,6 +159,10 @@ def index(request):
 
 @login_required
 def nova_reserva_page(request):
+    try:
+        colaborador = request.user.colaborador
+    except Colaborador.DoesNotExist:
+        return render(request, 'reservas/sem_colaborador.html')
     """Página com o formulário de nova reserva."""
     return render(request, 'reservas/nova_reserva.html')
 
