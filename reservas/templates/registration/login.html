@@ -1,0 +1,28 @@
+{% extends 'reservas/base.html' %}
+
+{% block title %}Login – COSEG Agendamento{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Entrar no Sistema</h2>
+
+    {% if form.errors %}
+        <div class="mensagem erro" style="display:block;">
+            Usuário ou senha inválidos. Tente novamente.
+        </div>
+    {% endif %}
+
+    <form method="post" class="formulario">
+        {% csrf_token %}
+        <div class="campo">
+            <label for="id_username">Usuário</label>
+            {{ form.username }}
+        </div>
+        <div class="campo">
+            <label for="id_password">Senha</label>
+            {{ form.password }}
+        </div>
+        <button type="submit">Entrar</button>
+    </form>
+</div>
+{% endblock %}
