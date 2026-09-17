@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
+    # Autenticação
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+
     # Páginas (HTML)
     path('', views.index, name='index'),
     path('nova-reserva/', views.nova_reserva_page, name='nova_reserva_page'),
