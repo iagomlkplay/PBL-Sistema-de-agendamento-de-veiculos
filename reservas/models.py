@@ -71,7 +71,11 @@ class Reserva(models.Model):
         return f"Reserva {self.protocolo} - {self.colaborador.nome}"
 
     def clean(self):
-        # 1. Verificar horário comercial (8h-17h)
+        # 1. Não permitir agendamento no passado
+        if self.data_inicio < timezone.now():
+            raise ValidationError("Não é possível agendar para uma data/hora no passado.")
+
+        # 2. Verificar horário comercial (8h-17h)
         if self.data_inicio.hour < 8 or self.data_inicio.hour >= 17:
             raise ValidationError("O horário de início deve ser entre 8:00 e 17:00.")
         if self.data_fim.hour < 8 or self.data_fim.hour > 17:
@@ -79,7 +83,7 @@ class Reserva(models.Model):
         if self.data_inicio >= self.data_fim:
             raise ValidationError("A data/hora de início deve ser anterior à data/hora de fim.")
 
-        # 2. Limite de 10 reservas por semana (últimos 7 dias)
+        # 3. Limite de 10 reservas por semana (últimos 7 dias)
         uma_semana_atras = timezone.now() - timedelta(days=7)
         reservas_semana = Reserva.objects.filter(
             colaborador=self.colaborador,
@@ -88,7 +92,7 @@ class Reserva(models.Model):
         if reservas_semana.count() >= 10:
             raise ValidationError("Este colaborador já atingiu o limite de 10 reservas na semana.")
 
-        # 3. Verificar disponibilidade do veículo com buffer de 1h
+        # 4. Verificar disponibilidade do veículo com buffer de 1h
         conflitos_veiculo = Reserva.objects.filter(
             veiculo=self.veiculo,
             status='confirmada'
@@ -99,7 +103,7 @@ class Reserva(models.Model):
         if conflitos_veiculo.exists():
             raise ValidationError("Veículo não disponível no período solicitado (inclui buffer de 1h).")
 
-        # 4. Verificar disponibilidade do motorista com buffer de 1h
+        # 5. Verificar disponibilidade do motorista com buffer de 1h
         conflitos_motorista = Reserva.objects.filter(
             motorista=self.motorista,
             status='confirmada'
