@@ -12,10 +12,16 @@
         <div class="container">
             <h1>Sistema de Agendamento de Veículos</h1>
             <nav>
-                <a href="{% url 'index' %}">Início</a>
-                <a href="{% url 'nova_reserva_page' %}">Nova Reserva</a>
-                <a href="{% url 'lista_reservas_page' %}">Reservas</a>
-                <a href="/admin/" target="_blank">Admin</a>
+                {% if user.is_authenticated %}
+                    <span style="color:#ffcc00;">👤 {{ user.username }}</span>
+                    <a href="{% url 'index' %}">Início</a>
+                    <a href="{% url 'nova_reserva_page' %}">Nova Reserva</a>
+                    <a href="{% url 'lista_reservas_page' %}">Reservas</a>
+                    <a href="/admin/" target="_blank">Admin</a>
+                    <a href="{% url 'logout' %}">Sair</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Entrar</a>
+                {% endif %}
             </nav>
         </div>
     </header>
