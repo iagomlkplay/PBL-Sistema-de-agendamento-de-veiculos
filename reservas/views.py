@@ -103,3 +103,16 @@ def listar_reservas(request):
             'status': r.status,
         })
     return JsonResponse(data, safe=False)
+
+def index(request):
+    """Página inicial."""
+    return render(request, 'reservas/index.html')
+
+def nova_reserva_page(request):
+    """Página com o formulário de nova reserva."""
+    colaboradores = Colaborador.objects.filter(ativo=True).order_by('nome')
+    return render(request, 'reservas/nova_reserva.html', {'colaboradores': colaboradores})
+
+def lista_reservas_page(request):
+    """Página que lista as reservas (o JS carrega via API)."""
+    return render(request, 'reservas/lista_reservas.html')
