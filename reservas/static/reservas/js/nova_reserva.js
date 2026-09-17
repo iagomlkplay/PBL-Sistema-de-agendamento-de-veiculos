@@ -1,4 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // Define o "min" do datetime-local para agora
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+    const agoraISO = agora.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM
+
+    const inputInicio = document.getElementById('data_inicio');
+    const inputFim = document.getElementById('data_fim');
+    inputInicio.min = agoraISO;
+    inputFim.min = agoraISO;
+
+    // Quando o usuário escolher a data de início, força a data fim a ser no mesmo dia
+    inputInicio.addEventListener('change', () => {
+        if (inputInicio.value) {
+            const dia = inputInicio.value.split('T')[0];
+            inputFim.min = `${dia}T08:00`;
+            inputFim.max = `${dia}T17:00`;
+        }
+    });
+
+    // Quando o usuário escolher a data de fim, força a data início a ser no mesmo dia
+    inputFim.addEventListener('change', () => {
+        if (inputFim.value) {
+            const dia = inputFim.value.split('T')[0];
+            inputInicio.min = `${dia}T08:00`;
+            inputInicio.max = `${dia}T17:00`;
+        }
+    });
+
     const form = document.getElementById('form-reserva');
     const mensagem = document.getElementById('mensagem');
     const resultado = document.getElementById('resultado');
