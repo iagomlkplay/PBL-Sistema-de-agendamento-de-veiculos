@@ -3,10 +3,22 @@
 {% block title %}Reservas – COSEG Agendamento{% endblock %}
 
 {% block content %}
-<h2>Reservas Confirmadas</h2>
+<h2>
+    {% if user.is_staff %}
+        Todas as Reservas
+    {% else %}
+        Minhas Reservas
+    {% endif %}
+</h2>
 
 <div id="carregando">Carregando reservas...</div>
-<div id="sem-reservas" class="escondido">Nenhuma reserva encontrada.</div>
+<div id="sem-reservas" class="escondido">
+    {% if user.is_staff %}
+        Nenhuma reserva encontrada no sistema.
+    {% else %}
+        Você ainda não fez nenhuma reserva.
+    {% endif %}
+</div>
 
 <table id="tabela-reservas" class="escondido">
     <thead>
@@ -18,7 +30,7 @@
             <th>Início</th>
             <th>Fim</th>
             <th>Origem → Destino</th>
-            <th>Pax</th>
+            <th>Passageiros</th>
         </tr>
     </thead>
     <tbody id="corpo-tabela"></tbody>
