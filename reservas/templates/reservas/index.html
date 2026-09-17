@@ -8,18 +8,24 @@
     <p>Centralize suas solicitações, evite conflitos de horário e garanta o veículo certo para cada viagem.</p>
 
     <div class="cards">
-        <a href="{% url 'nova_reserva_page' %}" class="card">
-            <h3>Nova Reserva</h3>
-            <p>Solicite um veículo informando origem, destino, passageiros e horário.</p>
-        </a>
+        {% if user.colaborador %}
+            <a href="{% url 'nova_reserva_page' %}" class="card">
+                <h3>Nova Reserva</h3>
+                <p>Solicite um veículo informando origem, destino, passageiros e horário.</p>
+            </a>
+        {% endif %}
+
         <a href="{% url 'lista_reservas_page' %}" class="card">
-            <h3>Ver Reservas</h3>
-            <p>Consulte todas as reservas confirmadas no sistema.</p>
+            <h3>{% if user.is_staff %}Todas as Reservas{% else %}Minhas Reservas{% endif %}</h3>
+            <p>Consulte as reservas {% if not user.is_staff %}que você fez{% else %}confirmadas no sistema{% endif %}.</p>
         </a>
-        <a href="/admin/" target="_blank" class="card">
-            <h3>Administração</h3>
-            <p>Gerencie veículos, motoristas e colaboradores.</p>
-        </a>
+
+        {% if user.is_staff %}
+            <a href="/admin/" target="_blank" class="card">
+                <h3>Administração</h3>
+                <p>Gerencie veículos, motoristas e colaboradores.</p>
+            </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
