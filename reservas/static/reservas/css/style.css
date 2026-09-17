@@ -1,0 +1,166 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+/* Header */
+header {
+    background: #1a3c5e;
+    color: #fff;
+    padding: 15px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+header h1 { font-size: 1.4rem; display: inline-block; }
+header nav { float: right; margin-top: 6px; }
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 18px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+header nav a:hover { color: #ffcc00; }
+
+/* Main */
+main { flex: 1; padding: 30px 0; }
+
+/* Hero */
+.hero h2 { font-size: 1.8rem; margin-bottom: 10px; color: #1a3c5e; }
+.hero p { margin-bottom: 25px; color: #555; }
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+.card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-top: 4px solid #1a3c5e;
+}
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.card h3 { color: #1a3c5e; margin-bottom: 8px; }
+
+/* Formulário */
+.formulario {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-top: 20px;
+}
+.campo { margin-bottom: 18px; flex: 1; }
+.linha { display: flex; gap: 20px; flex-wrap: wrap; }
+.campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #1a3c5e;
+    font-size: 0.9rem;
+}
+.campo input,
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccd3da;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    border-color: #1a3c5e;
+    outline: none;
+}
+.campo small { color: #888; font-size: 0.8rem; }
+
+button[type="submit"] {
+    background: #1a3c5e;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button[type="submit"]:hover { background: #14304a; }
+button[type="submit"]:disabled { background: #999; cursor: not-allowed; }
+
+/* Mensagens */
+.mensagem {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    display: none;
+}
+.mensagem.erro { background: #f8d7da; color: #721c24; display: block; }
+.mensagem.sucesso { background: #d4edda; color: #155724; display: block; }
+
+/* Resultado (protocolo) */
+.resultado {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+.resultado h3 { color: #155724; margin-bottom: 10px; }
+.resultado p { margin: 4px 0; }
+.resultado strong { color: #155724; }
+
+/* Tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-top: 20px;
+}
+th, td { padding: 12px 14px; text-align: left; font-size: 0.9rem; }
+th { background: #1a3c5e; color: #fff; font-weight: 600; }
+tbody tr:nth-child(even) { background: #f9fafb; }
+tbody tr:hover { background: #eef3f8; }
+
+/* Utilitários */
+.escondido { display: none !important; }
+
+/* Footer */
+footer {
+    background: #1a3c5e;
+    color: #cfd8e0;
+    padding: 15px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 40px;
+}
+
+@media (max-width: 700px) {
+    header nav { float: none; display: block; margin-top: 10px; }
+    header nav a { margin: 0 12px 0 0; }
+    .linha { flex-direction: column; gap: 0; }
+}
