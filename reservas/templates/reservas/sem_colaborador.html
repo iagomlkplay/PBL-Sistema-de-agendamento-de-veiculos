@@ -1,0 +1,19 @@
+{% extends 'reservas/base.html' %}
+
+{% block title %}Sem Colaborador Vinculado{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h2>⚠️ Você não está vinculado a um colaborador</h2>
+    <p>
+        Seu usuário ainda não foi associado a um registro de Colaborador no sistema.
+        Para fazer reservas, peça ao administrador para vincular seu usuário em
+        <strong>Admin → Colaboradores</strong>.
+    </p>
+    <p>
+        <a href="{% url 'index' %}" class="card" style="display:inline-block; margin-top:20px; padding:12px 24px;">
+            ← Voltar para o início
+        </a>
+    </p>
+</div>
+{% endblock %}
