@@ -1,0 +1,74 @@
+{% extends 'reservas/base.html' %}
+
+{% block title %}Reservas – COSEG Mobilidade{% endblock %}
+
+{% block content %}
+<h2>Reservas Confirmadas</h2>
+
+<div id="carregando">Carregando reservas...</div>
+<div id="sem-reservas" class="escondido">Nenhuma reserva encontrada.</div>
+
+<table id="tabela-reservas" class="escondido">
+    <thead>
+        <tr>
+            <th>Protocolo</th>
+            <th>Colaborador</th>
+            <th>Veículo</th>
+            <th>Motorista</th>
+            <th>Início</th>
+            <th>Fim</th>
+            <th>Origem → Destino</th>
+            <th>Pax</th>
+        </tr>
+    </thead>
+    <tbody id="corpo-tabela"></tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+{% load static %}
+<script src="{% static 'reservas/js/api.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const carregando = document.getElementById('carregando');
+        const tabela = document.getElementById('tabela-reservas');
+        const semReservas = document.getElementById('sem-reservas');
+        const corpo = document.getElementById('corpo-tabela');
+
+        try {
+            const reservas = await listarReservas();
+            carregando.classList.add('escondido');
+
+            if (!reservas || reservas.length === 0) {
+                semReservas.classList.remove('escondido');
+                return;
+            }
+
+            reservas.forEach(r => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td><strong>${r.protocolo}</strong></td>
+                    <td>${r.colaborador}</td>
+                    <td>${r.veiculo}</td>
+                    <td>${r.motorista}</td>
+                    <td>${formatarData(r.data_inicio)}</td>
+                    <td>${formatarData(r.data_fim)}</td>
+                    <td>${r.origem} → ${r.destino}</td>
+                    <td>${r.num_passageiros}</td>
+                `;
+                corpo.appendChild(linha);
+            });
+
+            tabela.classList.remove('escondido');
+        } catch (e) {
+            carregando.textContent = 'Erro ao carregar reservas.';
+            console.error(e);
+        }
+    });
+
+    function formatarData(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+</script>
+{% endblock %}

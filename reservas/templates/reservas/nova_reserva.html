@@ -1,0 +1,72 @@
+{% extends 'reservas/base.html' %}
+
+{% block title %}Nova Reserva – COSEG Mobilidade{% endblock %}
+
+{% block content %}
+<h2>Nova Reserva</h2>
+
+<div id="mensagem" class="mensagem"></div>
+
+<form id="form-reserva" class="formulario">
+    <div class="campo">
+        <label for="colaborador">Colaborador *</label>
+        <select id="colaborador" name="colaborador_id" required>
+            <option value="">-- Selecione --</option>
+            {% for c in colaboradores %}
+                <option value="{{ c.id }}">{{ c.nome }} ({{ c.departamento }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="linha">
+        <div class="campo">
+            <label for="origem">Origem *</label>
+            <input type="text" id="origem" name="origem" required maxlength="200">
+        </div>
+        <div class="campo">
+            <label for="destino">Destino *</label>
+            <input type="text" id="destino" name="destino" required maxlength="200">
+        </div>
+    </div>
+
+    <div class="linha">
+        <div class="campo">
+            <label for="data_inicio">Data/Hora de Início *</label>
+            <input type="datetime-local" id="data_inicio" name="data_inicio" required>
+        </div>
+        <div class="campo">
+            <label for="data_fim">Data/Hora de Fim *</label>
+            <input type="datetime-local" id="data_fim" name="data_fim" required>
+        </div>
+    </div>
+
+    <div class="linha">
+        <div class="campo">
+            <label for="num_passageiros">Número de Passageiros *</label>
+            <input type="number" id="num_passageiros" name="num_passageiros" min="1" max="20" required>
+            <small>Não conte com o motorista.</small>
+        </div>
+        <div class="campo">
+            <label for="motivo">Motivo *</label>
+            <textarea id="motivo" name="motivo" rows="3" required></textarea>
+        </div>
+    </div>
+
+    <button type="submit" id="btn-enviar">Solicitar Reserva</button>
+</form>
+
+<!-- Área do protocolo (aparece após sucesso) -->
+<div id="resultado" class="resultado escondido">
+    <h3>✅ Reserva Confirmada!</h3>
+    <p><strong>Protocolo:</strong> <span id="protocolo"></span></p>
+    <p><strong>Veículo:</strong> <span id="veiculo"></span></p>
+    <p><strong>Motorista:</strong> <span id="motorista"></span></p>
+    <p><strong>Período:</strong> <span id="periodo"></span></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% load static %}
+<script src="{% static 'reservas/js/api.js' %}"></script>
+<script src="{% static 'reservas/js/nova_reserva.js' %}"></script>
+{% endblock %}

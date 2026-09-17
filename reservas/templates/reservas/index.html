@@ -1,0 +1,25 @@
+{% extends 'reservas/base.html' %}
+
+{% block title %}Início – COSEG Mobilidade{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h2>Bem-vindo ao Sistema de Agendamento de Veículos</h2>
+    <p>Centralize suas solicitações, evite conflitos de horário e garanta o veículo certo para cada viagem.</p>
+
+    <div class="cards">
+        <a href="{% url 'nova_reserva_page' %}" class="card">
+            <h3>➕ Nova Reserva</h3>
+            <p>Solicite um veículo informando origem, destino, passageiros e horário.</p>
+        </a>
+        <a href="{% url 'lista_reservas_page' %}" class="card">
+            <h3>📋 Ver Reservas</h3>
+            <p>Consulte todas as reservas confirmadas no sistema.</p>
+        </a>
+        <a href="/admin/" target="_blank" class="card">
+            <h3>⚙️ Administração</h3>
+            <p>Gerencie veículos, motoristas e colaboradores.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
