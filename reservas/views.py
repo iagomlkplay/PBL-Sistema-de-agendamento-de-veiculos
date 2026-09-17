@@ -130,7 +130,7 @@ def listar_reservas(request):
             reservas = Reserva.objects.filter(
                 status='confirmada',
                 colaborador=colaborador
-            ).order_by('data_inicio')
+            ).order_by('-data_inicio')
         except Colaborador.DoesNotExist:
             # Usuário sem colaborador vinculado → lista vazia
             reservas = Reserva.objects.none()
