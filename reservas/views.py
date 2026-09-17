@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 
 import json
 from django.http import JsonResponse
@@ -8,39 +12,57 @@ from .models import Colaborador, Reserva
 from .utils import escolher_veiculo_motorista
 from datetime import datetime
 
-@csrf_exempt  # apenas para teste
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('index')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+@csrf_exempt
+@login_required
 def criar_reserva(request):
     if request.method != 'POST':
         return JsonResponse({'erro': 'Método não permitido'}, status=405)
-    
+
+    # Obtém o colaborador do usuário logado
+    try:
+        colaborador = request.user.colaborador
+    except Colaborador.DoesNotExist:
+        return JsonResponse(
+            {'erro': 'Usuário não está vinculado a um colaborador.'},
+            status=403
+        )
+
     try:
         dados = json.loads(request.body)
     except:
         return JsonResponse({'erro': 'JSON inválido'}, status=400)
 
     # Extrair dados
-    colaborador_id = dados.get('colaborador_id')
     origem = dados.get('origem')
     destino = dados.get('destino')
     num_passageiros = dados.get('num_passageiros')
     motivo = dados.get('motivo')
-    data_inicio_str = dados.get('data_inicio')  # espera formato ISO "2026-08-18T10:00:00"
+    data_inicio_str = dados.get('data_inicio')
     data_fim_str = dados.get('data_fim')
 
-    # Validações básicas de campos obrigatórios
-    if not all([colaborador_id, origem, destino, num_passageiros, motivo, data_inicio_str, data_fim_str]):
+    if not all([origem, destino, num_passageiros, motivo, data_inicio_str, data_fim_str]):
         return JsonResponse({'erro': 'Todos os campos são obrigatórios'}, status=400)
-
-    try:
-        colaborador = Colaborador.objects.get(id=colaborador_id)
-    except Colaborador.DoesNotExist:
-        return JsonResponse({'erro': 'Colaborador não encontrado'}, status=404)
 
     try:
         data_inicio = datetime.fromisoformat(data_inicio_str)
         data_fim = datetime.fromisoformat(data_fim_str)
     except:
-        return JsonResponse({'erro': 'Formato de data/hora inválido. Use ISO (YYYY-MM-DDTHH:MM:SS)'}, status=400)
+        return JsonResponse({'erro': 'Formato de data/hora inválido.'}, status=400)
 
     # Verificar horário comercial (8-17) (Pré-validação)
     if data_inicio.hour < 8 or data_inicio.hour >= 17 or data_fim.hour < 8 or data_fim.hour > 17:
@@ -50,9 +72,7 @@ def criar_reserva(request):
 
     # Escolher veículo e motorista automaticamente
     try:
-        veiculo, motorista = escolher_veiculo_motorista(
-            num_passageiros, data_inicio, data_fim
-        )
+        veiculo, motorista = escolher_veiculo_motorista(num_passageiros, data_inicio, data_fim)
     except ValidationError as e:
         return JsonResponse({'erro': str(e)}, status=400)
 
@@ -68,6 +88,7 @@ def criar_reserva(request):
         num_passageiros=num_passageiros,
         motivo=motivo
     )
+
     try:
         reserva.save()  # dispara clean() e gera protocolo
     except ValidationError as e:
@@ -85,6 +106,7 @@ def criar_reserva(request):
         'mensagem': 'Reserva criada com sucesso!'
     }, status=201)
 
+@login_required
 def listar_reservas(request):
     reservas = Reserva.objects.filter(status='confirmada').order_by('data_inicio')
     data = []
@@ -104,14 +126,15 @@ def listar_reservas(request):
         })
     return JsonResponse(data, safe=False)
 
+@login_required
 def index(request):
     """Página inicial."""
     return render(request, 'reservas/index.html')
 
+@login_required
 def nova_reserva_page(request):
     """Página com o formulário de nova reserva."""
-    colaboradores = Colaborador.objects.filter(ativo=True).order_by('nome')
-    return render(request, 'reservas/nova_reserva.html', {'colaboradores': colaboradores})
+    return render(request, 'reservas/nova_reserva.html')
 
 def lista_reservas_page(request):
     """Página que lista as reservas (o JS carrega via API)."""
