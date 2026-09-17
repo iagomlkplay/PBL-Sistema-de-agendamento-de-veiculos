@@ -8,16 +8,6 @@
 <div id="mensagem" class="mensagem"></div>
 
 <form id="form-reserva" class="formulario">
-    <div class="campo">
-        <label for="colaborador">Colaborador *</label>
-        <select id="colaborador" name="colaborador_id" required>
-            <option value="">-- Selecione --</option>
-            {% for c in colaboradores %}
-                <option value="{{ c.id }}">{{ c.nome }} ({{ c.departamento }})</option>
-            {% endfor %}
-        </select>
-    </div>
-
     <div class="linha">
         <div class="campo">
             <label for="origem">Origem *</label>
