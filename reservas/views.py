@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from .models import Colaborador, Reserva
 from .utils import escolher_veiculo_motorista
 from datetime import datetime
+from django.utils import timezone
 
 def login_view(request):
     if request.method == 'POST':
@@ -64,11 +65,18 @@ def criar_reserva(request):
     except:
         return JsonResponse({'erro': 'Formato de data/hora inválido.'}, status=400)
 
-    # Verificar horário comercial (8-17) (Pré-validação)
-    if data_inicio.hour < 8 or data_inicio.hour >= 17 or data_fim.hour < 8 or data_fim.hour > 17:
-        return JsonResponse({'erro': 'Horário deve ser entre 8:00 e 17:00'}, status=400)
+    # Pré-validações (antes de buscar veículo)
+    if data_inicio < timezone.now():
+        return JsonResponse({'erro': 'Não é possível agendar para uma data/hora no passado.'}, status=400)
+    
+    if data_inicio.date() != data_fim.date():
+        return JsonResponse({'erro': 'A reserva deve começar e terminar no mesmo dia.'}, status=400)
+    
     if data_inicio >= data_fim:
         return JsonResponse({'erro': 'Início deve ser antes do fim'}, status=400)
+    
+    if data_inicio.hour < 8 or data_inicio.hour >= 17 or data_fim.hour < 8 or data_fim.hour > 17:
+        return JsonResponse({'erro': 'Horário deve ser entre 8:00 e 17:00'}, status=400)
 
     # Escolher veículo e motorista automaticamente
     try:
