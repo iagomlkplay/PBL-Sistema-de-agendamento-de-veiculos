@@ -62,6 +62,10 @@ def criar_reserva(request):
     try:
         data_inicio = datetime.fromisoformat(data_inicio_str)
         data_fim = datetime.fromisoformat(data_fim_str)
+        if timezone.is_naive(data_inicio):
+            data_inicio = timezone.make_aware(data_inicio, timezone.get_current_timezone())
+        if timezone.is_naive(data_fim):
+            data_fim = timezone.make_aware(data_fim, timezone.get_current_timezone())
     except:
         return JsonResponse({'erro': 'Formato de data/hora inválido.'}, status=400)
 
